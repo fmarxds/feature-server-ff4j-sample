@@ -1,0 +1,48 @@
+version: '3'
+
+services:
+  
+  postgresql:
+    image: postgres:13.4-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=feature-server
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+  
+  redis:
+    image: redis:6.2.5-alpine
+    ports:
+      - "6379:6379"
+  
+  ff4j-server:
+    build:
+      context: ./service--feature-server-ff4j-sample
+      dockerfile: Dockerfile
+    depends_on:
+      - postgresql
+      - redis
+    ports:
+      - "5001:5001"
+    environment:
+      - SERVER_PORT=5001
+      - SPRING_PROFILES_ACTIVE=dev
+      - POSTGRES_URL=postgresql
+      - POSTGRES_DATABASE=feature-server
+      - POSTGRES_USERNAME=admin
+      - POSTGRES_PASSWORD=admin
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  ff4j-client:
+    build:
+      context: ./client--feature-server-ff4j-sample
+      dockerfile: Dockerfile
+    depends_on:
+      - ff4j-server
+    ports:
+      - "5000:5000"
+    environment:
+      - SERVER_PORT=5000
+      - FF4J_URL=http://ff4j-server:5001/api/ff4j

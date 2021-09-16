@@ -1,0 +1,5 @@
+server:
+  port: ${SERVER_PORT:5000}
+
+ff4j:
+  url: ${FF4J_URL:http://localhost:5001/api/ff4j}
